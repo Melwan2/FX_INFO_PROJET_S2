@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
@@ -43,64 +45,71 @@ public class App extends Application {
         pane.add(new Label("Cy:"), 0, 3);
         TextField cy = new TextField();
         pane.add(cy, 1, 3);
+        pane.add(new Label("Nom:"), 0, 4);
+        TextField nomp = new TextField();
+        pane.add(nomp, 1, 4);
         
-        pane.add(new Label("Surface rectangle:"), 0, 4);
+        pane.add(new Label("Surface Pièce:"), 0, 5);
         Label surface = new Label("--");
-        pane.add(surface,1,4);
+        pane.add(surface,1,5);
 
-        ArrayList<Rec> liste_recs = new ArrayList<Rec>();
+        ArrayList<Piece> liste_Pieces = new ArrayList<Piece>();
 
         // Bouton permettant d'ajouter un rectangle à la liste liste_recs et de calculer sa surface.
-        Button btAdd = new Button("Ajouter rectangle");
-        pane.add(btAdd, 0, 5);
+        Button btAdd = new Button("Ajouter pièce");
+        pane.add(btAdd, 0, 6);
         // Expression lambda pour construire un EventHandler<ActionEvent>
         btAdd.setOnAction(evt -> {
-            Rec rec = new Rec(Double.parseDouble(lon.getText()), 
-                              Double.parseDouble(lar.getText()), 
-                              Double.parseDouble(cx.getText()),
-                              Double.parseDouble(cy.getText()));
-            liste_recs.add(rec);
+            Piece P = new Piece( Double.parseDouble(lon.getText()), 
+                                 Double.parseDouble(lar.getText()), 
+                                 Double.parseDouble(cx.getText()),
+                                 Double.parseDouble(cy.getText())
+                                 String.String(nomp_piece.getText()));
+            liste_Pieces.add(P);
             // Calcul et affichage de la surface
-            surface.setText(Double.toString(rec.surface()));
-            System.out.println("Rectangle : " + lon.getText() + " x " + lar.getText() + 
+            surface.setText(Double.toString(P.surface()));
+            System.out.println("Piece : " + lon.getText() + " x " + lar.getText() + 
                                " (" + cx.getText() + "," + cy.getText()+") ajouté à la liste");
         });
 
-        Button btSave = new Button("Sauvegarder rectangles");
-        pane.add(btSave, 1, 5);
-        btSave.setOnAction(evt -> {
-            PrintWriter pw;
-            try {
-                pw = new PrintWriter(new FileOutputStream("PATH_TO_FILE/rectangles.txt"));
-                for (Rec rec : liste_recs)
-                    pw.println("Rectangle;"+rec.getLon()+";"+rec.getLar()+";"+rec.getOri_x()+";"+rec.getOri_y()+";"+rec.surface());
-                pw.close();
-                System.out.println("Rectangle ajouté à la liste");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }            
+        Button btSave = new Button("Sauvegarder pieces");
+        pane.add(btSave, 1, 6);
+        btSave.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent evt) {
+                PrintWriter pw;
+                try {
+                    pw = new PrintWriter(new FileOutputStream("Pieces.txt"));
+                    for (Piece P : liste_Pieces)
+                        pw.println("Pièce;"+P.getLon()+";"+P.getLar()+";"+P.getOri_x()+";"+P.getOri_y()+";"+P.surface());
+                    pw.close();
+                    System.out.println("Pièce ajoutée à la liste");
+                } catch (FileNotFoundException e) {            
+                    e.printStackTrace();
+                }
+            }
         });
         
         Pane paneH = new Pane();
 
-        Button btShow = new Button("Dessiner rectangles");
-        pane.add(btShow, 2, 5);
+        Button btShow = new Button("Dessiner pièces");
+        pane.add(btShow, 2, 6);
         btShow.setOnAction(evt -> {
-            for (int i=0;i<liste_recs.size();i++) {
-                Text text = new Text("Rec " + (i+1));
+            for (int i=0;i<liste_Pieces.size();i++) {
+                Text text = new Text(nomp.getText());
                 StackPane stack = new StackPane();
                 Rectangle rectangle = new Rectangle();
-                rectangle.setX(liste_recs.get(i).getOri_x());
-                rectangle.setY(liste_recs.get(i).getOri_y());
-                rectangle.setWidth(liste_recs.get(i).getLar());
-                rectangle.setHeight(liste_recs.get(i).getLon());
+                rectangle.setX(liste_Pieces.get(i).getOri_x());
+                rectangle.setY(liste_Pieces.get(i).getOri_y());
+                rectangle.setWidth(liste_Pieces.get(i).getLar());
+                rectangle.setHeight(liste_Pieces.get(i).getLon());
                 rectangle.setStroke(Color.BLACK);
                 rectangle.setFill(Color.WHITE); 
                 
                 stack.setAlignment(Pos.CENTER);
                 stack.getChildren().addAll(rectangle, text);
-                stack.setLayoutX(liste_recs.get(i).getOri_x());
-                stack.setLayoutY(liste_recs.get(i).getOri_y());
+                stack.setLayoutX(liste_Pieces.get(i).getOri_x());
+                stack.setLayoutY(liste_Pieces.get(i).getOri_y());
                 
                 paneH.getChildren().addAll(stack);
             } 
@@ -116,7 +125,7 @@ public class App extends Application {
         // Graphe de scène avec des nœuds
         Scene scene = new Scene(paneV, 600, 500);   // Construire une scène à partir de la racine du graphe de scène
         primaryStage.setScene(scene);               // The stage sets scene
-        primaryStage.setTitle("Rectangles");        // Définir le titre de la fenêtre
+        primaryStage.setTitle("Pièces");        // Définir le titre de la fenêtre
         primaryStage.show();                        // Définir la visibilité (l'afficher)
     }
 
